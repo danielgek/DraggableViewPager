@@ -26,11 +26,11 @@ public class DraggerViewHolder extends FrameLayout {
     private int mVerticalRange;
     private boolean mIsOpen;
     private String LOG_TAG = "TABSLIDING";
+    private int horizontalOffset;
 
     public DraggerViewHolder(Context context, AttributeSet attrs) {
         super(context, attrs);
         mIsOpen = false;
-        Log.d(LOG_TAG,"DraggerViewHolder contructor");
     }
 
     @Override
@@ -39,14 +39,12 @@ public class DraggerViewHolder extends FrameLayout {
         mDragHelper = ViewDragHelper.create(this, 1.0f, new DragHelperCallback());
         mIsOpen = false;
         super.onFinishInflate();
-        Log.d(LOG_TAG,"DraggerViewHolder onFinishInflate");
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mVerticalRange = (int) (h * 0.70);
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.d(LOG_TAG,"DraggerViewHolder onSizeChanged");
     }
 
     private void onStopDraggingToClosed() {
@@ -63,7 +61,6 @@ public class DraggerViewHolder extends FrameLayout {
         int upperLimit = queenLocation[1] + viewPager.getMeasuredHeight();
         int lowerLimit = queenLocation[1];
         int y = (int) event.getRawY();
-        Log.d(LOG_TAG,"DraggerViewHolder isViewPagerTarget");
         return (y > lowerLimit && y < upperLimit);
 
     }
@@ -71,10 +68,8 @@ public class DraggerViewHolder extends FrameLayout {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if (isViewPagerTarget(event) && mDragHelper.shouldInterceptTouchEvent(event)) {
-            Log.d(LOG_TAG,"DraggerViewHolder onInterceptTouchEvent true");
             return true;
         } else {
-            Log.d(LOG_TAG,"DraggerViewHolder onInterceptTouchEvent false");
             return false;
         }
     }
@@ -83,11 +78,8 @@ public class DraggerViewHolder extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         if (isViewPagerTarget(event) || isMoving()) {
             mDragHelper.processTouchEvent(event);
-            Log.d(LOG_TAG,"DraggerViewHolder onTouchEvent true");
             return true;
         } else {
-            Log.d(LOG_TAG,"DraggerViewHolder onTouchEvent super.onTouchEvent(event)");
-
             return super.onTouchEvent(event);
         }
     }
@@ -96,9 +88,15 @@ public class DraggerViewHolder extends FrameLayout {
     public void computeScroll() { // needed for automatic settling.
         if (mDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(this);
-            Log.d(LOG_TAG,"DraggerViewHolder computeScroll inside if");
+        }else{
+            horizontalOffset = viewPager.getTop();
         }
-        Log.d(LOG_TAG,"DraggerViewHolder computeScroll outside if");
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        viewPager.offsetTopAndBottom(horizontalOffset);
     }
 
     public boolean isMoving() {
@@ -110,23 +108,15 @@ public class DraggerViewHolder extends FrameLayout {
         return mIsOpen;
     }
 
-
-
-
-
-
-
     public class DragHelperCallback extends ViewDragHelper.Callback {
         @Override
         public void onViewDragStateChanged(int state) {
-            Log.d(LOG_TAG,"DragHelperCallback onViewDragStateChanged");
             if (state == mDraggingState) { // no change
                 return;
             }
             if ((mDraggingState == ViewDragHelper.STATE_DRAGGING || mDraggingState == ViewDragHelper.STATE_SETTLING) &&
                     state == ViewDragHelper.STATE_IDLE) {
                 // the view stopped from moving.
-
                 if (mDraggingBorder == 0) {
                     onStopDraggingToClosed();
                 } else if (mDraggingBorder == mVerticalRange) {
@@ -141,28 +131,20 @@ public class DraggerViewHolder extends FrameLayout {
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            Log.d(LOG_TAG,"DragHelperCallback onViewDragStateChanged");
-
             mDraggingBorder = top;
         }
 
         public int getViewVerticalDragRange(View child) {
-            Log.d(LOG_TAG,"DragHelperCallback getViewVerticalDragRange");
-
             return mVerticalRange;
         }
 
         @Override
         public boolean tryCaptureView(View view, int i) {
-            Log.d(LOG_TAG,"DragHelperCallback tryCaptureView");
-
             return (view.getId() == R.id.viewpager);
         }
 
         @Override
         public int clampViewPositionVertical(View child, int top, int dy) {
-            Log.d(LOG_TAG,"DragHelperCallback clampViewPositionVertical");
-
             final int topBound = getPaddingTop();
             final int bottomBound = mVerticalRange;
             return Math.min(Math.max(top, topBound), bottomBound);
@@ -170,8 +152,6 @@ public class DraggerViewHolder extends FrameLayout {
 
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            Log.d(LOG_TAG,"DragHelperCallback onViewReleased");
-
             final float rangeToCheck = mVerticalRange;
             if (mDraggingBorder == 0) {
                 mIsOpen = false;
