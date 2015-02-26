@@ -13,10 +13,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.danielgek.tabsscroll.slidingTab.SlidingTabLayout;
@@ -26,7 +28,7 @@ public class MainActivity extends ActionBarActivity {
 
     private SlidingTabLayout slidingTabLayout;
     private ViewPager viewPager;
-
+    //ScrollView
     private Toolbar toolbar;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
@@ -46,6 +48,10 @@ public class MainActivity extends ActionBarActivity {
         }
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(8);
+        viewPager.getChildAt(0);
+
+
 
         //scrollView = (ScrollView) findViewById(R.id.scrollView);
 
@@ -66,7 +72,11 @@ public class MainActivity extends ActionBarActivity {
         slidingTabLayout.setViewPager(viewPager);
 
 
+
+
     }
+
+
 
 
     @Override

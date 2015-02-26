@@ -8,10 +8,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 
 /**
  * Created by danielgek on 13/02/15.
@@ -67,6 +69,13 @@ public class DraggerViewHolder extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+        Log.e("currentItem","current "+viewPager.getCurrentItem());
+        Log.e("currentItem","size "+viewPager.getCurrentItem());
+        CustomScrollView viewGroup = (CustomScrollView) viewPager.getChildAt(viewPager.getCurrentItem());
+        if(!viewGroup.isAtTop()){
+            return false;
+        }
+
         if (isViewPagerTarget(event) && mDragHelper.shouldInterceptTouchEvent(event)) {
             return true;
         } else {
